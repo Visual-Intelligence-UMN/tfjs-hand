@@ -13,7 +13,7 @@ export function drawPredictions(predictions, ctx) {
     } else {
         document.getElementById('cnt').innerHTML = '';
     }
-    console.log("isOKFinger: ", predictions);
+    // console.log("isOKFinger: ", predictions);
         
     predictions.forEach((hand) => {
         // console.log("hand prediction: ", hand['handedness']);

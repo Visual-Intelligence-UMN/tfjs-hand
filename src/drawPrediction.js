@@ -8,11 +8,11 @@ const fingerLookupIndices = {
 
 export function drawPredictions(predictions, ctx) {
     if (!predictions) return;
-    if (isOKFinger(predictions)) {
-        document.getElementById('cnt').innerHTML = 'OK';
-    } else {
-        document.getElementById('cnt').innerHTML = '';
-    }
+    // if (isOKFinger(predictions)) {
+    //     document.getElementById('cnt').innerHTML = 'OK';
+    // } else {
+    //     document.getElementById('cnt').innerHTML = '';
+    // }
     console.log("isOKFinger: ", predictions);
         
     predictions.forEach((hand) => {

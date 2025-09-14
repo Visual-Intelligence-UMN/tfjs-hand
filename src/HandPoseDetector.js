@@ -20,7 +20,6 @@ import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
 import { drawPredictions } from './drawPrediction';
-import { gestureDrawing } from './drawGesture';
 import handPNG from './assets/hand.jpg';
 
 let detector;
@@ -28,7 +27,6 @@ let videoWidth;
 let videoHeight;
 let ctx;
 let canvas;    // for rendering each finger as a polyline
-let persistentCtx; // for persistent drawing
 
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
@@ -82,7 +80,7 @@ const landmarksRealTime = async (video) => {
 
     if (predictions.length > 0) {
       drawPredictions(predictions, ctx);
-      gestureDrawing(predictions, persistentCtx);
+      // gestureDrawing(predictions, persistentCtx);
     }
     requestAnimationFrame(processFrame);
   }
@@ -137,10 +135,10 @@ async function main() {
   ctx.scale(-1, 1);
 
   // set up the persistent drawing canvas.
-  const persistentCanvas = document.getElementById('drawCanvas');
-  persistentCanvas.width = videoWidth;
-  persistentCanvas.height = videoHeight;
-  persistentCtx = persistentCanvas.getContext('2d');
+  // const persistentCanvas = document.getElementById('drawCanvas');
+  // persistentCanvas.width = videoWidth;
+  // persistentCanvas.height = videoHeight;
+  // persistentCtx = persistentCanvas.getContext('2d');
 
   // switch loading display to loaded.
   let loaded = document.getElementById('loaded');
@@ -186,18 +184,6 @@ const HandPoseDetector = () => {
             zIndex: 0,
           }}
         ></video>
-        {/* Persistent drawing canvas (not cleared each frame) */}
-        <canvas
-          id="drawCanvas"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 1,
-            border: '0px',
-            transform: 'scaleX(-1)', // Mirror video
-          }}
-        ></canvas>
         {/* Predictions canvas (cleared every frame) */}
         <canvas
           id="output"

@@ -21,6 +21,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
 import { drawPredictions } from './drawPredictions';
 import { gestureDrawing } from './drawGesture';
+import handPNG from './assets/hand.jpg';
 
 let detector;
 let videoWidth;
@@ -170,7 +171,7 @@ const HandPoseDetector = () => {
       > {}
         <video
           autoPlay
-          poster="./hand.jpg"
+          poster={handPNG}
           id="video"
           style={{
             position: 'absolute',

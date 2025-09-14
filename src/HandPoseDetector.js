@@ -15,17 +15,20 @@
  * =============================================================================
  */
 
-// import * as handpose from '@tensorflow-models/handpose';
+import React, { useEffect } from 'react';
 import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
-import {drawPredictions} from './drawing';
+import { drawPredictions } from './drawPrediction';
+import { gestureDrawing } from './drawGesture';
+import handPNG from './assets/hand.jpg';
 
 let detector;
 let videoWidth;
 let videoHeight;
 let ctx;
-let canvas; // for rendering each finger as a polyline
+let canvas;    // for rendering each finger as a polyline
+let persistentCtx; // for persistent drawing
 
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
@@ -36,7 +39,7 @@ const state = {
 
 /* const stats = new Stats();
 stats.showPanel(0);
-document.body.appendChild(stats.dom);*/
+document.body.appendChild(stats.dom); */
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -47,7 +50,7 @@ function isMobile() {
 async function setupCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     throw new Error(
-      'Browser API navigator.mediaDevices.getUserMedia not available'
+        'Browser API navigator.mediaDevices.getUserMedia not available'
     );
   }
 
@@ -55,8 +58,7 @@ async function setupCamera() {
   const stream = await navigator.mediaDevices.getUserMedia({
     video: {
       facingMode: 'user',
-      // Only setting the video to a specified size in order to accommodate a
-      // point cloud, so on mobile devices accept the default size.
+      // Only setting the video to a specified size to accommodate a point cloud, so on mobile devices accept the default size.
       width: mobile ? undefined : VIDEO_WIDTH,
       height: mobile ? undefined : VIDEO_HEIGHT,
     },
@@ -70,19 +72,21 @@ async function setupCamera() {
   });
 }
 
+// This function processes each video frame.
 const landmarksRealTime = async (video) => {
-  async function frameLandmarks() {
+  
+  //  each frame, run the model.
+  async function processFrame() {
     const predictions = await detector.estimateHands(video);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (predictions.length > 0) {
-      // console.log(result);
       drawPredictions(predictions, ctx);
+      gestureDrawing(predictions, persistentCtx);
     }
-    // stats.end();
-    requestAnimationFrame(frameLandmarks);
+    requestAnimationFrame(processFrame);
   }
-  frameLandmarks();
+  processFrame();
 };
 
 navigator.getUserMedia =
@@ -93,7 +97,7 @@ navigator.getUserMedia =
 if ('xr' in navigator) {
   console.log('WebXR can be used');
 } else {
-  console.log('WebXR isn\'t available');
+  console.log("WebXR isn't available");
 }
 
 async function main() {
@@ -106,7 +110,7 @@ async function main() {
   };
   detector = await handPoseDetection.createDetector(model, detectorConfig);
 
-  // setup camera
+  // setup camera.
   let video;
   try {
     video = await setupCamera();
@@ -119,20 +123,26 @@ async function main() {
   videoWidth = video.videoWidth;
   videoHeight = video.videoHeight;
 
-  // set up canvas
+  // set up the predictions canvas.
   canvas = document.getElementById('output');
   canvas.width = videoWidth;
   canvas.height = videoHeight;
   video.width = videoWidth;
   video.height = videoHeight;
-
+  
   ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, videoWidth, videoHeight);
-
+  
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
 
-  // switch loading display to loaded
+  // set up the persistent drawing canvas.
+  const persistentCanvas = document.getElementById('drawCanvas');
+  persistentCanvas.width = videoWidth;
+  persistentCanvas.height = videoHeight;
+  persistentCtx = persistentCanvas.getContext('2d');
+
+  // switch loading display to loaded.
   let loaded = document.getElementById('loaded');
   let loading = document.getElementById('loading');
   loaded.style.display = 'block';
@@ -143,3 +153,73 @@ async function main() {
 }
 
 main();
+
+const HandPoseDetector = () => {
+  useEffect(() => {
+    main();
+  }, []);
+
+  return (
+    <div>
+      <div id="info" style={{ display: 'none' }}></div>
+      <h1>A Hand Gesture Detector</h1>
+
+      {/* Container for the video and both canvas */}
+      <div
+        style={{
+          position: 'relative',
+          width: VIDEO_WIDTH,
+          height: VIDEO_HEIGHT,
+        }}
+      >
+        <video
+          autoPlay
+          poster={handPNG}
+          id="video"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: VIDEO_WIDTH,
+            height: VIDEO_HEIGHT,
+            transform: 'scaleX(-1)', // Mirror video
+            zIndex: 0,
+          }}
+        ></video>
+        {/* Persistent drawing canvas (not cleared each frame) */}
+        <canvas
+          id="drawCanvas"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+            border: '0px',
+            transform: 'scaleX(-1)', // Mirror video
+          }}
+        ></canvas>
+        {/* Predictions canvas (cleared every frame) */}
+        <canvas
+          id="output"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 2,
+            border: '0px',
+          }}
+        ></canvas>
+      </div>
+
+      <div id="loading">
+        <h2>Wait for the ML Hand Detector to load...</h2>
+      </div>
+      <h2 id="loaded" style={{ display: 'none' }}>
+        Make hand gesture and say what happens
+      </h2>
+      <p id="cnt"></p>
+    </div>
+  );
+};
+
+export default HandPoseDetector;

@@ -13,7 +13,10 @@ export function drawPredictions(predictions, ctx) {
     } else {
         document.getElementById('cnt').innerHTML = '';
     }
+    console.log("isOKFinger: ", predictions);
+        
     predictions.forEach((hand) => {
+        // console.log("hand prediction: ", hand['handedness']);
         drawOneHand(hand['keypoints'], hand['handedness'], ctx);
     });
 }
@@ -51,6 +54,7 @@ function drawOneHand(keypoints, handedness, ctx) {
     for (let i = 0; i < fingers.length; i++) {
         const finger = fingers[i];
         const points = fingerLookupIndices[finger].map((idx) => keypoints[idx]);
+        // console.log("points: ", points);
         drawPath(points, false, ctx);
     }
 }
@@ -59,6 +63,7 @@ function drawOneHand(keypoints, handedness, ctx) {
 function drawPath(points, closePath, ctx) {
     const region = new Path2D();
     region.moveTo(points[0]['x'], points[0]['y']);
+    // console.log("points: ", points);
     for (let i = 1; i < points.length; i++) {
         const point = points[i];
         region.lineTo(point['x'], point['y']);
@@ -69,3 +74,4 @@ function drawPath(points, closePath, ctx) {
     }
     ctx.stroke(region);
 }
+

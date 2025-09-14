@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/tfjs-hand/static/css/main.0ff4323a.css",
+    "main.js": "/tfjs-hand/static/js/main.cd781602.js",
+    "static/media/hand.jpg": "/tfjs-hand/static/media/hand.2ee2a817862e33fe6fa9.jpg",
+    "index.html": "/tfjs-hand/index.html",
+    "main.0ff4323a.css.map": "/tfjs-hand/static/css/main.0ff4323a.css.map",
+    "main.cd781602.js.map": "/tfjs-hand/static/js/main.cd781602.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0ff4323a.css",
+    "static/js/main.cd781602.js"
+  ]
+}

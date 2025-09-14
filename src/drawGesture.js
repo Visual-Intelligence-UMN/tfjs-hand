@@ -26,7 +26,7 @@ export function gestureDrawing(predictions, persistentCtx) {
     // Connect the previous point to current point.
     if (lastDrawPos) {
       persistentCtx.strokeStyle = 'green';
-      persistentCtx.lineWidth = 3;
+      persistentCtx.lineWidth = 5;
       persistentCtx.beginPath();
       persistentCtx.moveTo(lastDrawPos.x, lastDrawPos.y);
       persistentCtx.lineTo(currentPos.x, currentPos.y);

@@ -19,7 +19,7 @@ import React, { useEffect } from 'react';
 import * as handPoseDetection from '@tensorflow-models/hand-pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
-import { drawPredictions } from './drawing';
+import { drawPredictions } from './drawPrediction';
 import { gestureDrawing } from './drawGesture';
 import handPNG from './assets/hand.jpg';
 
@@ -75,21 +75,18 @@ async function setupCamera() {
 // This function processes each video frame.
 const landmarksRealTime = async (video) => {
   
-  async function frameLandmarks() {
+  //  each frame, run the model.
+  async function processFrame() {
     const predictions = await detector.estimateHands(video);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (predictions.length > 0) {
-      // console.log(result);
       drawPredictions(predictions, ctx);
-        
-      // call our new gesture drawing logic 
       gestureDrawing(predictions, persistentCtx);
     }
-    // stats.end();
-    requestAnimationFrame(frameLandmarks);
+    requestAnimationFrame(processFrame);
   }
-  frameLandmarks();
+  processFrame();
 };
 
 navigator.getUserMedia =
